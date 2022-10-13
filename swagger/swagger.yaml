@@ -1,0 +1,220 @@
+openapi: 3.0.3
+info:
+  title: Tender API
+  description: Tender API
+  version: 1.0.0
+  license:
+    name: No Licence
+servers:
+  - url: 'http://localhost/api'
+
+tags:
+  - name: tender
+    description: API сервиса тендеров
+
+components:
+  parameters:
+    Name:
+      name: name
+      in: query
+      schema:
+        type: string
+      description: Название
+    UpdateDate:
+      name: update_date
+      in: query
+      schema:
+        type: string
+        format: date-time
+      description: Дата последнего обновления
+    Id:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+      description: ID
+  requestBodies:
+    PostTender:
+      required: true
+      content:
+        application/json:
+          schema:
+            type: object
+            required:
+              - external_code
+              - number
+              - status
+              - name
+              - update_date
+            properties:
+              external_code:
+                type: string
+                description: Внешний код
+              number:
+                type: string
+                description: Номер
+              status:
+                type: string
+                enum:
+                  - Закрыто
+                  - Отменено
+                  - Открыто
+              name:
+                type: string
+                description: Название
+              update_date:
+                type: string
+                format: date-time
+                description: Дата последнего обновления
+    PutTender:
+      required: false
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              external_code:
+                type: string
+                description: Внешний код
+              number:
+                type: string
+                description: Номер
+              status:
+                type: string
+                enum:
+                  - Закрыто
+                  - Отменено
+                  - Открыто
+              name:
+                type: string
+                description: Название
+              update_date:
+                type: string
+                format: date-time
+                description: Дата последнего обновления
+  responses:
+    TenderListResponse:
+      description: Список тендеров
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/Tender'
+    TenderResponse:
+      description: Тендер
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/Tender'
+    NotModifiedResponse:
+      description: Ресурс не изменен
+    NoContentResponse:
+      description: Нет контента
+    NotFoundResponse:
+      description: Ресурс не найден
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: Not Found
+  schemas:
+    Tender:
+      properties:
+        id:
+          type: integer
+          description: ID
+        external_code:
+          type: string
+          description: Внешний код
+        number:
+          type: string
+          description: Номер
+        status:
+          type: string
+          enum:
+            - Закрыто
+            - Отменено
+            - Открыто
+        name:
+          type: string
+          description: Название
+        update_date:
+          type: string
+          format: date-time
+          description: Дата последнего обновления
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+paths:
+  /tender:
+    get:
+      summary: Получить список тендеров
+      operationId: getTenderList
+      tags:
+        - tender
+      parameters:
+        - $ref: '#/components/parameters/Name'
+        - $ref: '#/components/parameters/UpdateDate'
+      responses:
+        200:
+          $ref: '#/components/responses/TenderListResponse'
+    post:
+      summary: Создать новый тендер
+      operationId: postTender
+      tags:
+        - tender
+      requestBody:
+        $ref: '#/components/requestBodies/PostTender'
+      responses:
+        201:
+          $ref: '#/components/responses/TenderResponse'
+
+  /tender/{id}:
+    get:
+      summary: Получить один тендер
+      operationId: getTender
+      tags:
+        - tender
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        200:
+          $ref: '#/components/responses/TenderResponse'
+        404:
+          $ref: '#/components/responses/NotFoundResponse'
+    put:
+      summary: Редактировать свойства тендера
+      operationId: putTender
+      tags:
+        - tender
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      requestBody:
+        $ref: '#/components/requestBodies/PutTender'
+      responses:
+        200:
+          $ref: '#/components/responses/TenderResponse'
+        304:
+          $ref: '#/components/responses/NotModifiedResponse'
+        404:
+          $ref: '#/components/responses/NotFoundResponse'
+    delete:
+      summary: Удалить тендер
+      operationId: deleteTender
+      tags:
+        - tender
+      parameters:
+        - $ref: '#/components/parameters/Id'
+      responses:
+        204:
+          $ref: '#/components/responses/NoContentResponse'
+        404:
+          $ref: '#/components/responses/NotFoundResponse'
